@@ -8,6 +8,7 @@
 **/
 #include <rosbag/bag.h>
 #include <sensor_msgs/Image.h>
+#include <sensor_msgs/CompressedImage.h>
 #include <opencv2/opencv.hpp>
 #include <cv_bridge/cv_bridge.h>
 #include "gici/stream/format_image.h"
@@ -19,7 +20,7 @@ const int image_width = 752;
 const int image_height = 480;
 const int image_step = 1;
 
-const std::string topic_name = "/gici/image_raw";
+const std::string topic_name = "/gici/image_raw/Compressed";
 
 int main(int argc, char** argv)
 {
@@ -50,9 +51,9 @@ int main(int argc, char** argv)
     for (int i = 0; i < n; i++) {
       if (!input_image(&img, buf[i])) continue;
       cv::Mat image_mat(img.height, img.width, CV_8UC(img.step), img.image);
-      sensor_msgs::ImagePtr img_msg = 
+      sensor_msgs::CompressedImagePtr img_msg =  
         cv_bridge::CvImage(std_msgs::Header(), sensor_msgs::
-        image_encodings::MONO8, image_mat).toImageMsg();
+        image_encodings::MONO8, image_mat).toCompressedImageMsg();
       img_msg->header.seq = ++cnt;
       img_msg->header.stamp = ros::Time(gnss_common::gtimeToDouble(img.time));
       bag.write(topic_name, img_msg->header.stamp, *img_msg);
